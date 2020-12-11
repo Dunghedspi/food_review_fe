@@ -330,36 +330,6 @@ export default function SectionNavbars(props) {
           </div>
           <List className={classes.list}>
             <ListItem className={classes.listItem}>
-              <CustomDropdown
-                left
-                caret={false}
-                hoverColor="black"
-                dropdownHeader="Products Physical"
-                buttonText={<h4>{"Products Physical"}</h4>}
-                buttonProps={{
-                  className:
-                    classes.navLink + " " + classes.imageDropdownButton,
-                  color: "transparent",
-                }}
-                dropdownList={["BOOK", "DVD", "CD", "LP"]}
-              />
-            </ListItem>
-            <ListItem className={classes.listItem}>
-              <CustomDropdown
-                left
-                caret={false}
-                hoverColor="black"
-                dropdownHeader="Products Digital"
-                buttonText={<h4>{"Products Digital"}</h4>}
-                buttonProps={{
-                  className:
-                    classes.navLink + " " + classes.imageDropdownButton,
-                  color: "transparent",
-                }}
-                dropdownList={["BOOK", "MOVIE", "ALBUM", "CP"]}
-              />
-            </ListItem>
-            <ListItem className={classes.listItem}>
               <Button
                 aria-label="Notifications"
                 aria-haspopup="true"
@@ -379,7 +349,7 @@ export default function SectionNavbars(props) {
                 color="transparent"
               >
                 <Link to="/" name="home" className={classes.link}>
-                  <h4>SALE</h4>
+                  <h4>New</h4>
                 </Link>
               </Button>
             </ListItem>

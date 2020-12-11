@@ -1,37 +1,23 @@
 // @material-ui/core components
+import { Avatar, Button, Divider, Tooltip } from "@material-ui/core";
+import IconButton from "@material-ui/core/IconButton";
 import { makeStyles } from "@material-ui/core/styles";
-import DirectionsIcon from "@material-ui/icons/Directions";
+import PersonIcon from "@material-ui/icons/Person";
+import ThumbUpIcon from "@material-ui/icons/ThumbUp";
+import Rating from "@material-ui/lab/Rating";
+import food from "assets/img/faces/food.jpg";
+import classnames from "classnames";
 import Card from "components/Card/Card.js";
 import CardBody from "components/Card/CardBody";
 import GridContainer from "components/Grid/GridContainer.js";
 import GridItem from "components/Grid/GridItem.js";
 import Page from "components/page";
 import React from "react";
-import IconButton from "@material-ui/core/IconButton";
-import CreateOutlinedIcon from "@material-ui/icons/CreateOutlined";
-import {
-  Avatar,
-  Backdrop,
-  Button,
-  Divider,
-  Fade,
-  Modal,
-  Tooltip,
-} from "@material-ui/core";
-import food from "assets/img/faces/food.jpg";
-import Rating from "@material-ui/lab/Rating";
-import PersonIcon from "@material-ui/icons/Person";
-import SectionsCarousel from "views/Components/Sections/SectionCarousel";
-import classnames from "classnames";
-import ThumbUpIcon from "@material-ui/icons/ThumbUp";
-import Rleated from "./Sections/Rleated";
-import NewComment from "./Sections/NewComment";
-import CardFooter from "components/Card/CardFooter";
+import SectionsCarousel from "views/User/Components/Sections/SectionCarousel";
+import KeyboardReturnIcon from "@material-ui/icons/KeyboardReturn";
+// import CustomInput from "components/CustomInput/CustomInput";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    marginLeft: theme.spacing(2),
-  },
   expand: {
     transform: "rotate(0deg)",
     marginLeft: "auto",
@@ -52,6 +38,9 @@ const useStyles = makeStyles((theme) => ({
     flexFlow: "row nowrap",
     justifyContent: "center",
   },
+  imgBox: {
+    paddingTop: "20px",
+  },
   reset: {
     margin: 0,
   },
@@ -70,6 +59,20 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2, 4, 3),
   },
 }));
+
+// const renderComment = () => {
+//   return (
+//     <CustomInput
+//       id="regular"
+//       inputProps={{
+//         placeholder: "Trả lời",
+//       }}
+//       formControlProps={{
+//         fullWidth: true,
+//       }}
+//     />
+//   );
+// };
 
 const RenderList = (ratings) => {
   const classes = makeStyles(() => ({
@@ -117,9 +120,6 @@ const renderListComment = (comments) => {
       minHeight: "10px",
       backgroundColor: "#203e6e",
     },
-    root: {
-      marginTop: "20px",
-    },
   }))();
   return (
     <GridContainer className={classes.root}>
@@ -149,10 +149,16 @@ const renderListComment = (comments) => {
                   </GridItem>
                 </GridContainer>
                 <p>Món này ngon vl anh em ơi</p>
+                <Button
+                  endIcon={<KeyboardReturnIcon />}
+                  style={{ fontSize: "10px" }}
+                >
+                  Trả lời
+                </Button>
               </GridItem>
               <GridItem xl={1} md={1} className={classes.item}>
                 <Tooltip title={"Hữu ích"} arrow>
-                  <IconButton>
+                  <IconButton disabled>
                     <ThumbUpIcon />
                   </IconButton>
                 </Tooltip>
@@ -174,48 +180,14 @@ const item = [
 ];
 export default function LandingPage() {
   const classes = useStyles();
-  const [open, setOpen] = React.useState(false);
-
-  const handleOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
   return (
     <Page title="ProductDetails" className={classes.root}>
-      <Modal
-        aria-labelledby="transition-modal-title"
-        aria-describedby="transition-modal-description"
-        className={classes.modal}
-        open={open}
-        onClose={handleClose}
-        closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500,
-        }}
-      >
-        <Fade in={open}>
-          <div className={classes.paper}>
-            <NewComment />
-          </div>
-        </Fade>
-      </Modal>
       <GridContainer>
-        <GridItem xs={12} md={8}>
+        <GridItem xs={12} md={12}>
           <Card>
             <CardBody>
               <GridContainer>
-                <GridItem xl={12} md={12} className={classes.expand}>
-                  <Tooltip title="Chỉ Đường" arrow>
-                    <IconButton>
-                      <DirectionsIcon />
-                    </IconButton>
-                  </Tooltip>
-                </GridItem>
-                <GridItem xl={12} md={12}>
+                <GridItem xl={12} md={12} className={classes.imgBox}>
                   <GridContainer>
                     <GridItem xl={6} md={6} className={classes.img}>
                       <img
@@ -316,26 +288,7 @@ export default function LandingPage() {
                 </GridItem>
               </GridContainer>
             </CardBody>
-            <CardFooter>
-              <Button
-                variant="outlined"
-                startIcon={<CreateOutlinedIcon />}
-                onClick={handleOpen}
-              >
-                Viết bài đánh giá
-              </Button>
-            </CardFooter>
           </Card>
-        </GridItem>
-        <GridItem xs={12} md={4}>
-          <GridContainer>
-            <GridItem xs={12} md={12}>
-              <h3>Món ăn tương tự</h3>
-            </GridItem>
-            <GridItem xs={12} md={12}>
-              <Rleated />
-            </GridItem>
-          </GridContainer>
         </GridItem>
       </GridContainer>
     </Page>
