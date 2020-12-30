@@ -88,17 +88,13 @@ const RenderList = (ratings) => {
     <GridContainer>
       {ratings.map((item, index) => {
         return (
-          <GridItem xl={12} md={12} key={index}>
-            <GridContainer className={classes.item}>
-              <GridItem xl={1} md={1}>
-                <span>5</span>
-              </GridItem>
-              <GridItem xl={11} md={11} style={{ padding: 0 }}>
-                <div
-                  className={classes.rating}
-                  style={{ maxWidth: "75%" }}
-                ></div>
-              </GridItem>
+          <GridItem lg={12} md={12} sm={12} key={index} justify="center">
+            <GridContainer className={classes.item} justify="center">
+              <span>5</span>
+              <div
+                className={classes.rating}
+                style={{ minWidth: "75%", marginLeft: "10px" }}
+              ></div>
             </GridContainer>
           </GridItem>
         );
@@ -112,6 +108,7 @@ const renderListComment = (comments) => {
       display: "flex",
       flexFlow: "row nowrap",
       alignItems: "center",
+      justifyContent: "center",
     },
     rating: {
       minHeight: "10px",
@@ -120,22 +117,25 @@ const renderListComment = (comments) => {
     root: {
       marginTop: "20px",
     },
+    resetWidth: {
+      width: "auto",
+    },
   }))();
   return (
     <GridContainer className={classes.root}>
       {comments.map((item, index) => {
         return (
           <GridItem xl={12} md={12} key={index}>
-            <GridContainer className={classes.item}>
-              <GridItem xl={1} md={1}>
+            <GridContainer className={classes.item} justify="center">
+              <GridItem sm={1} md={1} lg={1} className={classes.resetWidth}>
                 <Avatar aria-label="recipe" className={classes.avatar}>
                   R
                 </Avatar>
               </GridItem>
-              <GridItem xl={9} md={9}>
+              <GridItem lg={9} md={9} sm={10}>
                 <span style={{ fontWeight: 500 }}>Nguyễn Văn Dũng</span>
                 <GridContainer>
-                  <GridItem xl={2} md={2}>
+                  <GridItem lg={2} md={2} sm={12}>
                     <Rating
                       name="size-small"
                       defaultValue={2}
@@ -150,7 +150,7 @@ const renderListComment = (comments) => {
                 </GridContainer>
                 <p>Món này ngon vl anh em ơi</p>
               </GridItem>
-              <GridItem xl={1} md={1} className={classes.item}>
+              <GridItem lg={2} md={1} sm={2} className={classes.item}>
                 <Tooltip title={"Hữu ích"} arrow>
                   <IconButton>
                     <ThumbUpIcon />
@@ -226,10 +226,8 @@ export default function LandingPage() {
                     </GridItem>
                     <GridItem xl={6} md={6}>
                       <GridContainer>
-                        <GridItem xl={12} md={12}>
-                          <h4 className={classes.reset}>
-                            Penny & Flo: Finding Home
-                          </h4>
+                        <GridItem xl={12} md={12} spacing={3}>
+                          <h4>Penny & Flo: Finding Home</h4>
                         </GridItem>
                         <GridItem xl={12} md={12} className={classes.expand}>
                           <Rating

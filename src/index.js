@@ -5,12 +5,16 @@ import { BrowserRouter as Router } from "react-router-dom";
 
 import "assets/scss/material-kit-react.scss?v=1.9.0";
 import App from "App/App";
+import { Provider } from "react-redux";
+import store from "store";
 
-var hist = createBrowserHistory();
+var history = createBrowserHistory();
 
 ReactDOM.render(
-  <Router history={hist}>
-    <App />
-  </Router>,
+  <Provider store={store}>
+    <Router history={history}>
+      <App />
+    </Router>
+  </Provider>,
   document.getElementById("root")
 );

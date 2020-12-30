@@ -1,6 +1,8 @@
+/* eslint-disable no-unused-vars */
 import React, { useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
+import { useForm } from "react-hook-form";
 import {
   Box,
   Button,
@@ -13,42 +15,28 @@ import {
   makeStyles,
 } from "@material-ui/core";
 
-const states = [
-  {
-    value: "alabama",
-    label: "Alabama",
-  },
-  {
-    value: "new-york",
-    label: "New York",
-  },
-  {
-    value: "san-francisco",
-    label: "San Francisco",
-  },
-];
-
 const useStyles = makeStyles(() => ({
   root: {},
 }));
+const onSubmit = (data) => {
+  console.log(data);
+};
+const onError = (error) => {
+  console.error(error);
+};
 
 const ProfileDetails = ({ className, ...rest }) => {
   const classes = useStyles();
+  const { handleSubmit, register } = useForm();
   const [values, setValues] = useState({
     firstName: "Katarina",
     lastName: "Smith",
     email: "demo@devias.io",
     phone: "",
     state: "Alabama",
-    country: "USA",
+    country: "Việt Nam",
+    city: "Hà Nội",
   });
-
-  const handleChange = (event) => {
-    setValues({
-      ...values,
-      [event.target.name]: event.target.value,
-    });
-  };
 
   return (
     <form
@@ -56,6 +44,7 @@ const ProfileDetails = ({ className, ...rest }) => {
       noValidate
       className={clsx(classes.root, className)}
       {...rest}
+      onSubmit={handleSubmit(onSubmit, onError)}
     >
       <Card>
         <CardHeader subheader="The information can be edited" title="Profile" />
@@ -67,7 +56,6 @@ const ProfileDetails = ({ className, ...rest }) => {
                 fullWidth
                 label="Shop Name"
                 name="name"
-                onChange={handleChange}
                 required
                 value={values.firstName}
                 variant="outlined"
@@ -77,11 +65,11 @@ const ProfileDetails = ({ className, ...rest }) => {
             <Grid item md={6} xs={12}>
               <TextField
                 fullWidth
-                label="Last name"
-                name="lastName"
-                onChange={handleChange}
-                required
+                label="Phone Number"
+                name="phone"
+                type="text"
                 variant="outlined"
+                inputRef={register}
               />
             </Grid>
             <Grid item md={6} xs={12}>
@@ -89,7 +77,6 @@ const ProfileDetails = ({ className, ...rest }) => {
                 fullWidth
                 label="Email Address"
                 name="email"
-                onChange={handleChange}
                 value={values.email}
                 required
                 variant="outlined"
@@ -99,48 +86,63 @@ const ProfileDetails = ({ className, ...rest }) => {
             <Grid item md={6} xs={12}>
               <TextField
                 fullWidth
-                label="Phone Number"
-                name="phone"
-                onChange={handleChange}
-                type="number"
-                variant="outlined"
-              />
-            </Grid>
-            <Grid item md={6} xs={12}>
-              <TextField
-                fullWidth
                 label="Country"
                 name="country"
-                onChange={handleChange}
                 required
                 value={values.country}
                 variant="outlined"
+                disabled
               />
             </Grid>
             <Grid item md={6} xs={12}>
               <TextField
                 fullWidth
-                label="Select State"
-                name="state"
-                onChange={handleChange}
+                label="City"
+                name="city"
                 required
-                select
-                SelectProps={{ native: true }}
-                value={values.state}
+                value={values.city}
                 variant="outlined"
-              >
-                {states.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </TextField>
+                inputRef={register}
+              />
+            </Grid>
+            <Grid item md={6} xs={12}>
+              <TextField
+                fullWidth
+                label="District"
+                name="district"
+                required
+                value={values.district}
+                variant="outlined"
+                inputRef={register}
+              />
+            </Grid>
+            <Grid item md={6} xs={12}>
+              <TextField
+                fullWidth
+                label="Village"
+                name="village"
+                required
+                value={values.village}
+                variant="outlined"
+                inputRef={register}
+              />
+            </Grid>
+            <Grid item md={6} xs={12}>
+              <TextField
+                fullWidth
+                label="Street"
+                name="street"
+                required
+                value={values.street}
+                variant="outlined"
+                inputRef={register}
+              />
             </Grid>
           </Grid>
         </CardContent>
         <Divider />
         <Box display="flex" justifyContent="flex-end" p={2}>
-          <Button color="primary" variant="contained">
+          <Button color="primary" variant="contained" type="submit">
             Save details
           </Button>
         </Box>

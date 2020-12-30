@@ -16,11 +16,9 @@ import VisibilityIcon from "@material-ui/icons/Visibility";
 import food from "assets/img/faces/food.jpg";
 import StarIcon from "@material-ui/icons/Star";
 import React from "react";
+import { Link } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    maxWidth: 345,
-  },
   media: {
     height: 0,
     paddingTop: "56.25%", // 16:9
@@ -52,27 +50,22 @@ export default function RecipeReviewCard() {
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
 
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
-  };
-
   return (
     <Card className={classes.root}>
       <CardHeader
         avatar={
-          <Avatar aria-label="recipe" className={classes.avatar}>
-            R
-          </Avatar>
-        }
-        action={
-          <IconButton aria-label="settings">
-            <MoreVertIcon />
-          </IconButton>
+          <Link to="/shop">
+            <Avatar aria-label="recipe" className={classes.avatar}>
+              R
+            </Avatar>
+          </Link>
         }
         title="Shrimp and Chorizo Paella"
         subheader="September 14, 2016"
       />
-      <CardMedia className={classes.media} image={food} title="Paella dish" />
+      <Link to="token">
+        <CardMedia className={classes.media} image={food} title="Paella dish" />
+      </Link>
       <CardContent>
         <Typography variant="body2" color="textSecondary" component="p">
           This impressive paella is a perfect party dish and a fun meal to cook

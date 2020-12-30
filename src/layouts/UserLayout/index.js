@@ -2,7 +2,11 @@ import { makeStyles } from "@material-ui/core";
 import React from "react";
 import { Outlet } from "react-router-dom";
 import Footer from "./Footer/Footer";
-import Header from "./Header/SideBar";
+import Header from "./Header/index";
+import { UserApi } from "apis/UserApi";
+import { useDispatch } from "react-redux";
+import { SetInfo } from "actions/UserAction";
+import "react-toastify/dist/ReactToastify.css";
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.background.dark,
@@ -11,6 +15,7 @@ const useStyles = makeStyles((theme) => ({
     overflow: "hidden",
     width: "100%",
     flexFlow: "column nowrap",
+    margin: 0,
   },
   content: {
     flex: "1 1 auto",
@@ -24,7 +29,16 @@ const useStyles = makeStyles((theme) => ({
 
 const UserLayout = () => {
   const classes = useStyles();
-
+  const dispatch = useDispatch();
+  React.useEffect(() => {
+    const getUser = async () => {
+      const response = await UserApi.getUserInfo();
+      if (response) {
+        dispatch(SetInfo(response));
+      }
+    };
+    getUser();
+  }, []);
   return (
     <div className={classes.root}>
       <Header />

@@ -1,7 +1,7 @@
 import React from "react";
 import { Container, Grid, makeStyles } from "@material-ui/core";
 import Page from "components/page";
-import Budget from "./Budget";
+import Budget from "./TotalFood";
 import TotalProfit from "./TotalProfit";
 const useStyles = makeStyles((theme) => ({
   root: {

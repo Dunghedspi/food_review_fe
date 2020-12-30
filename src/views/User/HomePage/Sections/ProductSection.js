@@ -22,8 +22,9 @@ const useStylesCard = makeStyles((theme) => ({
 const useStyles = makeStyles(styles);
 
 export default function ProductSection(props) {
+  const foods = props.foods;
+  console.log(foods);
   const classes = useStyles();
-  const [data, setData] = React.useState([1, 2, 3, 4, 5, 6, 7, 8, 9]);
   const classesCard = useStylesCard();
   const { title } = props;
   const renderProductCard = (products) => {
@@ -41,21 +42,18 @@ export default function ProductSection(props) {
       );
     });
   };
-  const handelOnClick = () => {
-    setData([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
-  };
   return (
     <div className={classes.section}>
       <div id={"trending"}>
         <h2 className={classes.title}>{title}</h2>
         <GridContainer justify="center">
-          {renderProductCard(data)}
+          {renderProductCard(foods)}
         </GridContainer>
         <div className={classes.more}>
           <Button
             className={classes.btn}
             endIcon={<ExpandMoreIcon />}
-            onClick={handelOnClick}
+            // onClick={handelOnClick}
           >
             Xem thêm
           </Button>

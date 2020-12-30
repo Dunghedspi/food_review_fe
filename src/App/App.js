@@ -4,7 +4,6 @@ import routes from "routes.js";
 
 const App = () => {
   const routing = useRoutes(routes);
-  console.log(routing);
   return <React.Fragment>{routing}</React.Fragment>;
 };
 

@@ -11,13 +11,13 @@ import IconButton from "@material-ui/core/IconButton";
 import Button from "@material-ui/core/Button";
 import Hidden from "@material-ui/core/Hidden";
 import Drawer from "@material-ui/core/Drawer";
+import { useNavigate } from "react-router-dom";
 // @material-ui/icons
 import Menu from "@material-ui/icons/Menu";
 // core components
 import styles from "assets/jss/material-kit-react/components/headerStyle.js";
 
 const useStyles = makeStyles(styles);
-
 export default function Header(props) {
   const classes = useStyles();
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -53,14 +53,19 @@ export default function Header(props) {
         .classList.remove(classes[changeColorOnScroll.color]);
     }
   };
-  const { color, rightLinks, leftLinks, brand, fixed, absolute } = props;
+  const { color, rightLinks, leftLinks, brand, fixed, absolute, to } = props;
   const appBarClasses = classNames({
     [classes.appBar]: true,
     [classes[color]]: color,
     [classes.absolute]: absolute,
-    [classes.fixed]: fixed
+    [classes.fixed]: fixed,
   });
-  const brandComponent = <Button className={classes.title}>{brand}</Button>;
+  const navigation = useNavigate();
+  const brandComponent = (
+    <Button className={classes.title} onClick={() => navigation(to)}>
+      {brand}
+    </Button>
+  );
   return (
     <AppBar className={appBarClasses}>
       <Toolbar className={classes.container}>
@@ -93,7 +98,7 @@ export default function Header(props) {
           anchor={"right"}
           open={mobileOpen}
           classes={{
-            paper: classes.drawerPaper
+            paper: classes.drawerPaper,
           }}
           onClose={handleDrawerToggle}
         >
@@ -108,7 +113,8 @@ export default function Header(props) {
 }
 
 Header.defaultProp = {
-  color: "white"
+  color: "black",
+  to: "/",
 };
 
 Header.propTypes = {
@@ -121,19 +127,14 @@ Header.propTypes = {
     "transparent",
     "white",
     "rose",
-    "dark"
+    "dark",
   ]),
   rightLinks: PropTypes.node,
   leftLinks: PropTypes.node,
   brand: PropTypes.string,
   fixed: PropTypes.bool,
+  to: PropTypes.string,
   absolute: PropTypes.bool,
-  // this will cause the sidebar to change the color from
-  // props.color (see above) to changeColorOnScroll.color
-  // when the window.pageYOffset is heigher or equal to
-  // changeColorOnScroll.height and then when it is smaller than
-  // changeColorOnScroll.height change it back to
-  // props.color (see above)
   changeColorOnScroll: PropTypes.shape({
     height: PropTypes.number.isRequired,
     color: PropTypes.oneOf([
@@ -145,7 +146,7 @@ Header.propTypes = {
       "transparent",
       "white",
       "rose",
-      "dark"
-    ]).isRequired
-  })
+      "dark",
+    ]).isRequired,
+  }),
 };

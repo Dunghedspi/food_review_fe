@@ -1,7 +1,6 @@
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 import styles from "assets/jss/material-kit-react/views/landingPage.js";
-// nodejs library that concatenates classes
 import classNames from "classnames";
 import GridContainer from "components/Grid/GridContainer.js";
 import GridItem from "components/Grid/GridItem.js";
@@ -10,20 +9,25 @@ import Parallax from "components/Parallax/Parallax.js";
 import React from "react";
 // Sections for this page
 import ProductSection from "./Sections/ProductSection.js";
-
 const useStyles = makeStyles(styles);
 
 export default function LandingPage() {
   React.useEffect(() => {
-    console.log(window.screen.width);
-    if (window.screen.width < 600) {
-      document
-        .getElementById("productHome")
-        .classList.remove(classes.mainRaised);
-    } else {
-      document.getElementById("productHome").classList.add(classes.mainRaised);
-    }
-  });
+    const handleChangeSize = () => {
+      if (window.matchMedia("(max-width: 650px)").matches) {
+        document
+          .getElementById("productHome")
+          .classList.remove(classes.mainRaised);
+      } else {
+        document
+          .getElementById("productHome")
+          .classList.add(classes.mainRaised);
+      }
+    };
+    window.addEventListener("resize", handleChangeSize);
+    return window.removeEventListener("resize", () => {});
+  }, []);
+  const [foods] = React.useState([1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5]);
   const classes = useStyles();
   return (
     <Page title="Home Page" className={classes.root}>
@@ -47,8 +51,7 @@ export default function LandingPage() {
         id={"productHome"}
       >
         <div className={classes.container}>
-          <ProductSection title={"Food Trending"} />
-          <ProductSection title={"Food New"} />
+          <ProductSection title={"Food Trending"} foods={foods} />
         </div>
       </div>
     </Page>
