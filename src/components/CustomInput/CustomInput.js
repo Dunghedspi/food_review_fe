@@ -58,7 +58,6 @@ const CustomInput = React.forwardRef((props, ref) => {
   }
   let isError = false;
   let errorMessage = "";
-  console.log(errorobj);
   if (errorobj && errorobj.hasOwnProperty(name)) {
     isError = true;
     errorMessage = errorobj[name].message;
@@ -85,7 +84,6 @@ const CustomInput = React.forwardRef((props, ref) => {
           disabled: classes.disabled,
           underline: underlineClasses,
         }}
-        ref={ref}
         name={name}
         id={id}
         {...inputProps}

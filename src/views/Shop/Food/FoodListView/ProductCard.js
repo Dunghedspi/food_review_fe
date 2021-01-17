@@ -1,8 +1,14 @@
 import {
   Avatar,
   Box,
+  Button,
   Card,
   Checkbox,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   IconButton,
   makeStyles,
   Table,
@@ -18,15 +24,23 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import React, { useState } from "react";
 import PerfectScrollbar from "react-perfect-scrollbar";
-import getInitials from "utils/getInitials";
+import { convertDate } from "utils/date";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import DetailsIcon from "@material-ui/icons/Details";
 import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { DeleteFood } from "actions/FoodAction";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
   avatar: {
     marginRight: theme.spacing(2),
+  },
+  dialog: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: "600px",
   },
 }));
 
@@ -35,6 +49,7 @@ const Results = ({ className, products, ...rest }) => {
   const [selectedCustomerIds, setSelectedCustomerIds] = useState([]);
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(0);
+  const dispatch = useDispatch();
 
   const handleSelectAll = (event) => {
     let newSelectedCustomerIds;
@@ -82,9 +97,46 @@ const Results = ({ className, products, ...rest }) => {
   const handlePageChange = (event, newPage) => {
     setPage(newPage);
   };
+  const [open, setOpen] = React.useState(false);
+  const [id, setId] = React.useState(-1);
+  const handleClickDelete = (id) => {
+    setId(id);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleDeleteFood = () => {
+    dispatch(DeleteFood(id));
+    handleClose();
+  };
 
   return (
     <Card className={clsx(classes.root, className)} {...rest}>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        className={classes.dialog}
+      >
+        <DialogTitle id="alert-dialog-title">{"Confirm Account"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {"Xác nhận xóa món ăn"}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Disagree
+          </Button>
+          <Button onClick={handleDeleteFood} color="primary" autoFocus>
+            Agree
+          </Button>
+        </DialogActions>
+      </Dialog>
       <PerfectScrollbar>
         <Box minWidth={1050}>
           <Table>
@@ -126,29 +178,29 @@ const Results = ({ className, products, ...rest }) => {
                     <Box alignItems="center" display="flex">
                       <Avatar
                         className={classes.avatar}
-                        src={customer.media}
+                        src={customer.thumbnail}
                         variant="square"
-                      >
-                        {getInitials(customer.name)}
-                      </Avatar>
+                      />
                       <Typography color="textPrimary" variant="body1">
                         {customer.name}
                       </Typography>
                     </Box>
                   </TableCell>
-                  <TableCell>{customer.price}</TableCell>
-                  <TableCell>{customer.sale}</TableCell>
-                  <TableCell>{customer.createdAt}</TableCell>
+                  <TableCell>{customer.rating}</TableCell>
+                  <TableCell>{customer.view}</TableCell>
+                  <TableCell>{convertDate(customer.createdAt)}</TableCell>
                   <TableCell align="center">
                     <Tooltip aria-label="details" arrow title="Details">
-                      <Link to="token">
+                      <Link to={`details?id=${customer.id}`}>
                         <IconButton>
                           <DetailsIcon color="red" />
                         </IconButton>
                       </Link>
                     </Tooltip>
                     <Tooltip aria-label="details" arrow title="Delete">
-                      <IconButton>
+                      <IconButton
+                        onClick={() => handleClickDelete(customer.id)}
+                      >
                         <DeleteOutlineIcon color="red" />
                       </IconButton>
                     </Tooltip>

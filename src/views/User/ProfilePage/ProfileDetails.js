@@ -42,6 +42,7 @@ const ProfileDetails = ({ className, ...rest }) => {
   const classes = useStyles();
   const user = useSelector((state) => state.UserReducers);
   const [show, setShow] = React.useState(false);
+
   const methods = useForm({
     validationSchema: schemaValid2,
     mode: "onBlur",
@@ -100,7 +101,7 @@ const ProfileDetails = ({ className, ...rest }) => {
                 required
                 variant="outlined"
                 inputRef={register}
-                defaultValue={user.username}
+                defaultValue={user.userName}
                 errorobj={errors}
                 control={control}
               />

@@ -18,6 +18,7 @@ import Card from "components/Card/Card.js";
 import CardBody from "components/Card/CardBody.js";
 import Page from "components/page";
 import { UserApi } from "apis/UserApi";
+import { ROLE } from "constants/role";
 // import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 //Validate schema
@@ -27,13 +28,17 @@ const schema = yup.object().shape({
 });
 
 const SignInPage = () => {
-  const navigation = useNavigate();
+  const navigate = useNavigate();
   const onSubmit = async (data) => {
-    console.log(data);
     const payload = await UserApi.SignIn(data);
-    console.log(payload);
     if (payload) {
-      navigation("/");
+      if (payload === ROLE.user) {
+        navigate("/food");
+      } else if (payload === ROLE.shop) {
+        navigate("/shop");
+      } else if (payload === ROLE.admin) {
+        navigate("/admin");
+      }
     }
   };
   const onError = (error) => console.log(error);

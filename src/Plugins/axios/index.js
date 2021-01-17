@@ -3,12 +3,12 @@ import QueryString from "qs";
 function axiosCustom() {
   const instance = axios.create({
     headers: {
-      "X-Requested-With": "XMLHttpRequest",
+      // "X-Requested-With": "XMLHttpRequest",
       "Content-type": "application/x-www-form-urlencoded",
-      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Origin": "http://localhost:3000",
     },
-    timeout: 1000,
-    baseURL: "http://localhost:9091",
+    timeout: 5000,
+    baseURL: `${process.env.REACT_APP_SERVER_DOMAIN}`,
     withCredentials: true,
   });
 

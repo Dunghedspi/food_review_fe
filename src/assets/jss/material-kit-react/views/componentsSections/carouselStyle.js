@@ -5,6 +5,11 @@ const carouselStyle = {
     padding: "0 0",
   },
   container,
+  img: {
+    width: "100%",
+    maxHeight: "400px",
+    objectFit: "cover",
+  },
 };
 
 export default carouselStyle;
