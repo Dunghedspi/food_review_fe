@@ -7,7 +7,6 @@ function axiosCustom() {
       "Content-type": "application/x-www-form-urlencoded",
       "Access-Control-Allow-Origin": "http://localhost:3000",
     },
-    timeout: 5000,
     baseURL: `${process.env.REACT_APP_SERVER_DOMAIN}`,
     withCredentials: true,
   });
