@@ -7,7 +7,7 @@ export const SetInfo = (payload) => {
   };
 };
 
-export const Logout = (dispatch) => {
+export const Logout = () => {
   return async (dispatch) => {
     const response = await UserApi.Logout();
     if (response) {
@@ -35,8 +35,27 @@ export const EditAvatar = (payload) => {
     const response = await UserApi.EditAvatar(payload);
     if (response) {
       dispatch({
-        type: "SET_INFO",
-        payload,
+        type: "SET_AVATAR",
+        payload: response,
+      });
+    }
+  };
+};
+
+export const EditShop = (payload) => {
+  return {
+    type: "SET_SHOP_MODEL",
+    payload,
+  };
+};
+
+export const GetListUser = () => {
+  return async (dispatch) => {
+    const response = await UserApi.GetListUser();
+    if (response) {
+      dispatch({
+        type: "SET_LIST_USER",
+        payload: response,
       });
     }
   };

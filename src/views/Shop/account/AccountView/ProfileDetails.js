@@ -1,8 +1,12 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import React, { useState } from "react";
-import clsx from "clsx";
 import PropTypes from "prop-types";
 import { useForm } from "react-hook-form";
+import { ShopApi } from "apis/ShopApi";
+import { EditShop } from "actions/UserAction";
+import { useDispatch } from "react-redux";
 import {
   Box,
   Button,
@@ -14,37 +18,50 @@ import {
   TextField,
   makeStyles,
 } from "@material-ui/core";
+import * as toast from "utils/toastify";
+import { toastifyError } from "utils/toastify";
 
 const useStyles = makeStyles(() => ({
   root: {},
+  textarea: {
+    margin: "14px 0px 0px 14px",
+    padding: "6px",
+    resize: "none",
+    border: "2px solid #c0c0c0",
+    borderRadius: "4px",
+    transition: ".4s",
+    outline: "none",
+    "&:hover": {
+      border: "2px solid #a0a0a0",
+    },
+    "&:focus": {
+      border: "2px solid #6600ff",
+    },
+  },
 }));
-const onSubmit = (data) => {
-  console.log(data);
-};
-const onError = (error) => {
-  console.error(error);
-};
 
-const ProfileDetails = ({ className, ...rest }) => {
+const ProfileDetails = (props) => {
   const classes = useStyles();
+  const { user } = props;
+  const { shopModel } = user;
+  const { addressModel } = shopModel || {};
   const { handleSubmit, register } = useForm();
-  const [values, setValues] = useState({
-    firstName: "Katarina",
-    lastName: "Smith",
-    email: "demo@devias.io",
-    phone: "",
-    state: "Alabama",
-    country: "Việt Nam",
-    city: "Hà Nội",
-  });
-
+  const dispatch = useDispatch();
+  const onSubmit = async (data) => {
+    const response = await ShopApi.EditShop(data);
+    if (response) {
+      toast.toastifySuccess("Cập nhập thông tin thành công");
+      dispatch(EditShop(response));
+    } else {
+      toast.toastifyError("Cập nhập thông tin không thành công");
+    }
+  };
   return (
     <form
       autoComplete="off"
       noValidate
-      className={clsx(classes.root, className)}
-      {...rest}
-      onSubmit={handleSubmit(onSubmit, onError)}
+      className={classes.root}
+      onSubmit={handleSubmit(onSubmit)}
     >
       <Card>
         <CardHeader subheader="The information can be edited" title="Profile" />
@@ -57,7 +74,7 @@ const ProfileDetails = ({ className, ...rest }) => {
                 label="Shop Name"
                 name="name"
                 required
-                value={values.firstName}
+                value={shopModel.nameShop}
                 variant="outlined"
                 disabled
               />
@@ -70,6 +87,7 @@ const ProfileDetails = ({ className, ...rest }) => {
                 type="text"
                 variant="outlined"
                 inputRef={register}
+                value={shopModel.phone}
               />
             </Grid>
             <Grid item md={6} xs={12}>
@@ -77,7 +95,7 @@ const ProfileDetails = ({ className, ...rest }) => {
                 fullWidth
                 label="Email Address"
                 name="email"
-                value={values.email}
+                value={user.email}
                 required
                 variant="outlined"
                 disabled
@@ -89,7 +107,7 @@ const ProfileDetails = ({ className, ...rest }) => {
                 label="Country"
                 name="country"
                 required
-                value={values.country}
+                value={addressModel.country || ""}
                 variant="outlined"
                 disabled
               />
@@ -98,9 +116,9 @@ const ProfileDetails = ({ className, ...rest }) => {
               <TextField
                 fullWidth
                 label="City"
-                name="city"
+                name="province"
                 required
-                value={values.city}
+                defaultValue={addressModel.province || ""}
                 variant="outlined"
                 inputRef={register}
               />
@@ -111,7 +129,7 @@ const ProfileDetails = ({ className, ...rest }) => {
                 label="District"
                 name="district"
                 required
-                value={values.district}
+                defaultValue={addressModel.district || ""}
                 variant="outlined"
                 inputRef={register}
               />
@@ -122,7 +140,7 @@ const ProfileDetails = ({ className, ...rest }) => {
                 label="Village"
                 name="village"
                 required
-                value={values.village}
+                defaultValue={addressModel.village || ""}
                 variant="outlined"
                 inputRef={register}
               />
@@ -133,10 +151,22 @@ const ProfileDetails = ({ className, ...rest }) => {
                 label="Street"
                 name="street"
                 required
-                value={values.street}
+                defaultValue={addressModel.street || ""}
                 variant="outlined"
                 inputRef={register}
               />
+            </Grid>
+            <Grid md={12} sm={12}>
+              <textarea
+                cols="80"
+                rows="6"
+                ref={register}
+                name="description"
+                className={classes.textarea}
+                placeholder="Description"
+              >
+                {shopModel.description}
+              </textarea>
             </Grid>
           </Grid>
         </CardContent>

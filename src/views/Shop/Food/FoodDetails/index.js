@@ -1,23 +1,45 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable no-empty */
 // @material-ui/core components
-import { Avatar, Button, Divider, Tooltip } from "@material-ui/core";
-import IconButton from "@material-ui/core/IconButton";
 import { makeStyles } from "@material-ui/core/styles";
-import PersonIcon from "@material-ui/icons/Person";
-import ThumbUpIcon from "@material-ui/icons/ThumbUp";
-import Rating from "@material-ui/lab/Rating";
-import food from "assets/img/faces/food.jpg";
-import classnames from "classnames";
+import DirectionsIcon from "@material-ui/icons/Directions";
 import Card from "components/Card/Card.js";
 import CardBody from "components/Card/CardBody";
 import GridContainer from "components/Grid/GridContainer.js";
 import GridItem from "components/Grid/GridItem.js";
 import Page from "components/page";
 import React from "react";
+import IconButton from "@material-ui/core/IconButton";
+import { FoodApi } from "apis/FoodApi";
+import { useSelector } from "react-redux";
+import { handleComment, checkLike } from "utils/comment";
+import { useForm } from "react-hook-form";
+import SubdirectoryArrowRightIcon from "@material-ui/icons/SubdirectoryArrowRight";
+import {
+  Avatar,
+  Button,
+  Divider,
+  Popper,
+  TextField,
+  Tooltip,
+} from "@material-ui/core";
+import Rating from "@material-ui/lab/Rating";
+import PersonIcon from "@material-ui/icons/Person";
 import SectionsCarousel from "views/User/Components/Sections/SectionCarousel";
-import KeyboardReturnIcon from "@material-ui/icons/KeyboardReturn";
-// import CustomInput from "components/CustomInput/CustomInput";
+import classnames from "classnames";
+import ThumbUpIcon from "@material-ui/icons/ThumbUp";
+import { useLocation } from "react-router-dom";
+import { FacebookShareButton, FacebookIcon } from "react-share";
+import { convertDate } from "utils/date";
+import io from "socket.io-client";
+// import HelmetMetaData from "views/User/Components/ShareFacebook";
+let socket;
 
+const ENDPOINT = process.env.REACT_APP_SERVER_SOCKET;
 const useStyles = makeStyles((theme) => ({
+  root: {
+    marginLeft: theme.spacing(2),
+  },
   expand: {
     transform: "rotate(0deg)",
     marginLeft: "auto",
@@ -38,9 +60,6 @@ const useStyles = makeStyles((theme) => ({
     flexFlow: "row nowrap",
     justifyContent: "center",
   },
-  imgBox: {
-    paddingTop: "20px",
-  },
   reset: {
     margin: 0,
   },
@@ -58,23 +77,98 @@ const useStyles = makeStyles((theme) => ({
     boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3),
   },
+  socialMediaPopper: {
+    top: "300px! Important ",
+    left: "unset! Important ",
+    right: "0px!   Important ",
+    display: "grid",
+  },
+  socialMediaButton: {
+    "&: hover> svg": {
+      height: "50px! important",
+      width: "50px! important",
+    },
+  },
 }));
 
-// const renderComment = () => {
-//   return (
-//     <CustomInput
-//       id="regular"
-//       inputProps={{
-//         placeholder: "Trả lời",
-//       }}
-//       formControlProps={{
-//         fullWidth: true,
-//       }}
-//     />
-//   );
-// };
-
 const RenderList = (ratings) => {
+  const classes = makeStyles(() => ({
+    item: {
+      display: "flex",
+      flexFlow: "row nowrap",
+      alignItems: "center",
+      justifyContent: "flex-start",
+      padding: "0 30px 0 20px",
+    },
+    rating: {
+      minHeight: "10px",
+    },
+    root: {
+      display: "flex",
+      flexFlow: "column nowrap",
+      justifyContent: "center",
+    },
+  }))();
+  const rates = handleComment(ratings);
+  const renderRate = (data) => {
+    let rateView = [];
+    for (const key in data) {
+      if (Object.hasOwnProperty.call(data, key)) {
+        const element = data[key];
+        rateView.push(
+          <GridItem lg={12} md={12} sm={12} key={key}>
+            <GridContainer className={classes.item} justify="center">
+              <span>{key}</span>
+              <div
+                className={classes.rating}
+                style={{
+                  minWidth: `${element.vote}%`,
+                  marginLeft: "10px",
+                  backgroundColor: `${element.color}`,
+                }}
+              ></div>
+            </GridContainer>
+          </GridItem>
+        );
+      }
+    }
+    return rateView;
+  };
+  return (
+    <GridContainer justify="center" className={classes.root}>
+      {renderRate(rates)}
+    </GridContainer>
+  );
+};
+const RenderListComment = ({ comments, user, methods, foodDetails }) => {
+  const [childComments, setChildComments] = React.useState([]);
+  const [commentSelect, setCommentsSelect] = React.useState({});
+  const [commentReply, setCommentReply] = React.useState({});
+  React.useEffect(() => {
+    if (socket) {
+      socket.on("typing", (data) => {
+        console.log(111);
+        const { commentId } = data;
+        commentReply[`${commentId}`] = true;
+        setCommentReply({ ...commentReply });
+      });
+      socket.on("endTyping", (data) => {
+        const { commentId } = data;
+        commentReply[`${commentId}`] = false;
+        setCommentReply({ ...commentReply });
+      });
+      socket.on("comment", (data) => {
+        if (
+          data.foodId === foodDetails.id &&
+          data.commentParentId === commentSelect
+        ) {
+          setChildComments((childComments) => [...childComments, data]);
+          commentReply[`${commentSelect}`] = false;
+          setCommentReply({ ...commentReply });
+        }
+      });
+    }
+  }, [commentSelect, socket]);
   const classes = makeStyles(() => ({
     item: {
       display: "flex",
@@ -86,159 +180,279 @@ const RenderList = (ratings) => {
       minHeight: "10px",
       backgroundColor: "#203e6e",
     },
+    root: {
+      marginTop: "20px",
+    },
+    resetWidth: {
+      width: "auto",
+      marginTop: "-60px",
+    },
+    btn: {
+      fontSize: "10px",
+    },
   }))();
-  return (
-    <GridContainer>
-      {ratings.map((item, index) => {
-        return (
-          <GridItem xl={12} md={12} key={index}>
-            <GridContainer className={classes.item}>
-              <GridItem xl={1} md={1}>
-                <span>5</span>
+  const onSubmit = async (data) => {
+    const formData = { ...data, commentParentId: commentSelect.id };
+    const res = await FoodApi.CreateChildComment(formData);
+    if (res) {
+      setChildComments([...childComments, res]);
+      socket.emit("comment", res);
+    }
+  };
+  const { handleSubmit, register } = methods;
+  const handleClick = async (item) => {
+    const response = await FoodApi.GetChildComment(item.id);
+    await setChildComments(response);
+    await setCommentsSelect(item);
+  };
+  const sendEventTyping = (item) => {
+    socket.emit("typing", { foodId: foodDetails.id, commentId: item.id });
+  };
+  const sendEndTyping = (item) => {
+    socket.emit("endTyping", { foodId: foodDetails.id, commentId: item.id });
+  };
+  const renderListChildComment = (childComments, comment) => {
+    return (
+      <>
+        {childComments.map((item, index) => {
+          return (
+            <GridItem xl={12} md={12} key={index}>
+              <GridContainer className={classes.item} justify="center">
+                <GridItem sm={1} md={1} lg={1}>
+                  <Avatar
+                    aria-label="recipe"
+                    className={classes.avatar}
+                    src={item.avatar}
+                  />
+                </GridItem>
+                <GridItem lg={9} md={9} sm={10}>
+                  <span style={{ fontWeight: 500 }}>{item.userName}</span>
+                  <GridContainer>
+                    <GridItem xl={8} md={8}>
+                      <span>{convertDate(item.createdAt)}</span>
+                    </GridItem>
+                  </GridContainer>
+                  <p>{item.content}</p>
+                </GridItem>
+              </GridContainer>
+            </GridItem>
+          );
+        })}
+        <GridItem md={12} sm={12}>
+          <GridContainer>
+            <GridItem sm={1} md={1} lg={1}>
+              <Avatar
+                aria-label="recipe"
+                className={classes.avatar1}
+                src={user.imageUrl}
+              />
+            </GridItem>
+            <GridItem sm={9} md={9}>
+              <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+                <TextField
+                  placeholder="Viết câu trả lời ..."
+                  variant="outlined"
+                  className={classes.textFile}
+                  size="small"
+                  name="reply"
+                  fullWidth
+                  inputRef={register}
+                  onChange={() => sendEventTyping(comment)}
+                  onBlur={() => sendEndTyping(comment)}
+                />
+              </form>
+            </GridItem>
+          </GridContainer>
+        </GridItem>
+      </>
+    );
+  };
+  const RenderCommentChild = ({ item }) => {
+    return (
+      <GridItem xl={12} md={12} key={item.id}>
+        <GridContainer className={classes.item}>
+          <GridItem sm={1} md={1} lg={1} className={classes.resetWidth}>
+            <Avatar
+              aria-label="recipe"
+              className={classes.avatar}
+              src={item.avatar}
+            />
+          </GridItem>
+          <GridItem lg={9} md={9} sm={10}>
+            <span style={{ fontWeight: 500 }}>{item.userName}</span>
+            <GridContainer>
+              <GridItem lg={2} md={2} sm={12}>
+                <Rating
+                  name="size-small"
+                  value={item.rate}
+                  size="small"
+                  precision={1}
+                  readOnly
+                />
               </GridItem>
-              <GridItem xl={11} md={11} style={{ padding: 0 }}>
-                <div
-                  className={classes.rating}
-                  style={{ maxWidth: "75%" }}
-                ></div>
+              <GridItem xl={8} md={8}>
+                <span>{convertDate(item.createdAt)}</span>
               </GridItem>
             </GridContainer>
+            <p>{item.content}</p>
+            {commentReply[item.id] ? (
+              <GridItem sm={4} md={4}>
+                {"Đang có người trả lời ..."}
+              </GridItem>
+            ) : (
+              ""
+            )}
+            <GridItem sm={12} md={12} lg={12}>
+              {item.id !== commentSelect.id ? (
+                <Button
+                  startIcon={<SubdirectoryArrowRightIcon />}
+                  className={classes.btn}
+                  onClick={() => {
+                    handleClick(item);
+                  }}
+                >
+                  Xem câu trả lời
+                </Button>
+              ) : (
+                ""
+              )}
+            </GridItem>
           </GridItem>
-        );
-      })}
-    </GridContainer>
-  );
-};
-const renderListComment = (comments) => {
-  const classes = makeStyles(() => ({
-    item: {
-      display: "flex",
-      flexFlow: "row nowrap",
-      alignItems: "center",
-    },
-    rating: {
-      minHeight: "10px",
-      backgroundColor: "#203e6e",
-    },
-  }))();
+          <GridItem lg={2} md={1} sm={2} className={classes.item}>
+            <IconButton disabled={true}>
+              <ThumbUpIcon />
+            </IconButton>
+            <span>{item.countLike}</span>
+          </GridItem>
+        </GridContainer>
+        <GridItem sm={12} md={12} lg={12}>
+          {item.id === commentSelect.id
+            ? renderListChildComment(childComments, item)
+            : ""}
+        </GridItem>
+      </GridItem>
+    );
+  };
   return (
     <GridContainer className={classes.root}>
       {comments.map((item, index) => {
-        return (
-          <GridItem xl={12} md={12} key={index}>
-            <GridContainer className={classes.item}>
-              <GridItem xl={1} md={1}>
-                <Avatar aria-label="recipe" className={classes.avatar}>
-                  R
-                </Avatar>
-              </GridItem>
-              <GridItem xl={9} md={9}>
-                <span style={{ fontWeight: 500 }}>Nguyễn Văn Dũng</span>
-                <GridContainer>
-                  <GridItem xl={2} md={2}>
-                    <Rating
-                      name="size-small"
-                      defaultValue={2}
-                      size="small"
-                      precision={0.5}
-                      readOnly
-                    />
-                  </GridItem>
-                  <GridItem xl={8} md={8}>
-                    <span>29/12/2016</span>
-                  </GridItem>
-                </GridContainer>
-                <p>Món này ngon vl anh em ơi</p>
-                <Button
-                  endIcon={<KeyboardReturnIcon />}
-                  style={{ fontSize: "10px" }}
-                >
-                  Trả lời
-                </Button>
-              </GridItem>
-              <GridItem xl={1} md={1} className={classes.item}>
-                <Tooltip title={"Hữu ích"} arrow>
-                  <IconButton disabled>
-                    <ThumbUpIcon />
-                  </IconButton>
-                </Tooltip>
-                <span>12</span>
-              </GridItem>
-            </GridContainer>
-          </GridItem>
-        );
+        const isCheck =
+          checkLike(item.listLike, user.id) || user.id === item.userId;
+        return <RenderCommentChild isCheck={isCheck} item={item} key={index} />;
       })}
     </GridContainer>
   );
 };
-const item = [
-  { 5: "50%" },
-  { 4: "10%" },
-  { 3: "15%" },
-  { 2: "15%" },
-  { 1: "10%" },
-];
+
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
 export default function LandingPage() {
+  const user = useSelector((state) => state.UserReducers);
+  const [foodDetails, setFoodDetails] = React.useState({});
   const classes = useStyles();
+  const [comments, setComments] = React.useState([]);
+  const [typingVote, setTypingVote] = React.useState(false);
+  const params = useQuery();
+  const methods = useForm();
+
+  React.useEffect(() => {
+    const getFood = async () => {
+      const food = await FoodApi.GetDetailsFood(params.get("id"));
+      setFoodDetails(food);
+    };
+    getFood();
+  }, [params.get("id")]);
+  React.useEffect(() => {
+    const getComments = async () => {
+      const response = await FoodApi.GetListComment(params.get("id"));
+      if (response) {
+        setComments(response);
+      }
+    };
+    getComments();
+  }, [params.get("id")]);
+  React.useEffect(() => {
+    socket = io(ENDPOINT, {
+      transports: ["websocket", "polling", "flashsocket"],
+    });
+    socket.emit("join", params.get("id"));
+    socket.on("typingVote", () => {
+      setTypingVote(true);
+    });
+    socket.on("addNewVote", (data) => {
+      setComments((comments) => [...comments, data]);
+      setTypingVote(false);
+    });
+    return () => {
+      socket.off();
+    };
+  }, [ENDPOINT, params.get("id")]);
   return (
-    <Page title="ProductDetails" className={classes.root}>
+    <Page title="Product Details">
+      {/* <HelmetMetaData></HelmetMetaData> */}
+      <Popper className={classes.socialMediaPopper} open={true} transition>
+        <FacebookShareButton
+          url={"http://www.camperstribe.com"}
+          quote={"CampersTribe - World is yours to explore"}
+          hashtag="#camperstribe"
+          className={classes.socialMediaButton}
+        >
+          <FacebookIcon size={36} />
+        </FacebookShareButton>
+      </Popper>
       <GridContainer>
         <GridItem xs={12} md={12}>
           <Card>
             <CardBody>
               <GridContainer>
-                <GridItem xl={12} md={12} className={classes.imgBox}>
+                <GridItem xl={12} md={12} className={classes.expand}>
+                  <Tooltip title="Chỉ Đường" arrow>
+                    <IconButton>
+                      <DirectionsIcon />
+                    </IconButton>
+                  </Tooltip>
+                </GridItem>
+                <GridItem xl={12} md={12}>
                   <GridContainer>
                     <GridItem xl={6} md={6} className={classes.img}>
                       <img
                         alt="food"
-                        src={food}
+                        src={foodDetails.thumbnail}
                         className={classes.foodImage}
                       />
                     </GridItem>
                     <GridItem xl={6} md={6}>
                       <GridContainer>
                         <GridItem xl={12} md={12}>
-                          <h4 className={classes.reset}>
-                            Penny & Flo: Finding Home
-                          </h4>
+                          <h4>{foodDetails.name}</h4>
                         </GridItem>
                         <GridItem xl={12} md={12} className={classes.expand}>
                           <Rating
                             name="size-small"
-                            defaultValue={2}
+                            value={foodDetails.rating ? foodDetails.rating : 0}
                             size="small"
                             precision={0.1}
                             readOnly
                           />
-                          <span style={{ margin: "0 5px 0 5px" }}>19200</span>
+                          <span style={{ margin: "0 5px 0 5px" }}>
+                            {foodDetails.view}
+                          </span>
                           <PersonIcon />
                         </GridItem>
-                        <GridItem xl={12} md={12}></GridItem>
+                        <GridItem xl={12} md={12}>
+                          {foodDetails.shortDescription}
+                        </GridItem>
                       </GridContainer>
                     </GridItem>
                   </GridContainer>
                 </GridItem>
                 <GridItem xl={12} md={12} className={classes.description}>
-                  <SectionsCarousel />
+                  <SectionsCarousel images={foodDetails.listImageFoodUrl} />
                 </GridItem>
                 <GridItem xl={12} md={12} className={classes.description}>
-                  <p>
-                    Love? Friendship? Mansion? Puzzles? YES! Penny & Flo:
-                    Finding Home has it all. Renovate the mansion and solve
-                    challenging puzzles with this new relaxing and fun FREE
-                    match-3 game! Help Penny and Flo renovate the mansion of a
-                    former Hollywood actress to its former glory and match
-                    pieces to solve challenging puzzles. Dig into a story full
-                    of twists and turns as Penny and Flo make friends with a
-                    cast of colorful characters. Match pieces & start your
-                    mansion makeover – play with themed boosters & renovate the
-                    mansion rooms with dozens of customization options! Discover
-                    hidden mansion areas and choose among hundreds of pieces of
-                    furniture for your mansion decoration project! Sit down,
-                    relax and enjoy this puzzle game enriched with a great
-                    story! Start your makeover now!
-                  </p>
+                  <p>{foodDetails.content}</p>
                 </GridItem>
               </GridContainer>
               <Divider />
@@ -255,12 +469,14 @@ export default function LandingPage() {
                     <GridItem xl={4} md={4}>
                       <GridContainer justify="center">
                         <GridItem xl={12} md={12} className={classes.img}>
-                          <h2 className={classes.reset}>4.8</h2>
+                          <h2 className={classes.reset}>
+                            {foodDetails.rating}
+                          </h2>
                         </GridItem>
                         <GridItem xl={12} md={12} className={classes.img}>
                           <Rating
                             name="size"
-                            defaultValue={4.4}
+                            value={foodDetails.rating ? foodDetails.rating : 0}
                             precision={0.1}
                             readOnly
                           />
@@ -274,16 +490,22 @@ export default function LandingPage() {
                           )}
                         >
                           <PersonIcon />
-                          <span>{` Tổng  12700`}</span>
+                          <span>{` Tổng  ${foodDetails.view}`}</span>
                         </GridItem>
                       </GridContainer>
                     </GridItem>
                     <GridItem xl={8} md={8}>
-                      {RenderList(item)}
+                      {RenderList(comments)}
                     </GridItem>
                     <GridItem xl={12} md={12}>
-                      {renderListComment(item)}
+                      <RenderListComment
+                        comments={comments}
+                        user={user}
+                        methods={methods}
+                        foodDetails={foodDetails}
+                      />
                     </GridItem>
+                    {typingVote ? <p>Có người đang đánh giá ...</p> : ""}
                   </GridContainer>
                 </GridItem>
               </GridContainer>

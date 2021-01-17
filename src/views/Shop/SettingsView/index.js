@@ -2,7 +2,8 @@ import React from "react";
 import { Box, Container, makeStyles } from "@material-ui/core";
 import Page from "components/page";
 import Password from "./Password";
-
+import { UserApi } from "apis/UserApi";
+import * as toast from "utils/toastify";
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.background.dark,
@@ -12,6 +13,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const onSubmit = async (data) => {
+  const response = await UserApi.EditPassword(data);
+  if (response) {
+    toast.toastifySuccess("Cập nhập thông tin thành công");
+  } else {
+    toast.toastifyError("Cập nhập thông tin không thành công");
+  }
+};
 const SettingsView = () => {
   const classes = useStyles();
 
@@ -19,7 +28,7 @@ const SettingsView = () => {
     <Page className={classes.root} title="Settings">
       <Container maxWidth="lg">
         <Box mt={3}>
-          <Password />
+          <Password onSubmit={onSubmit} />
         </Box>
       </Container>
     </Page>

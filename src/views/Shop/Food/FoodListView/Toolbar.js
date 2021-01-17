@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+
 import {
   Box,
   Button,
@@ -28,7 +30,7 @@ const handedClick = (navigator) => {
   navigator("new-food");
 };
 
-const Toolbar = ({ className, ...rest }) => {
+const Toolbar = ({ className, handleFilter, ...rest }) => {
   const classes = useStyles();
   const navigator = useNavigate();
   return (
@@ -59,6 +61,7 @@ const Toolbar = ({ className, ...rest }) => {
                 }}
                 placeholder="Search Food"
                 variant="outlined"
+                onChange={(event) => handleFilter(event.target.value)}
               />
             </Box>
           </CardContent>

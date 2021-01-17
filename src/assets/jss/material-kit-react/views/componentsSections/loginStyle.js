@@ -3,6 +3,9 @@ import { container } from "assets/jss/material-kit-react.js";
 import image from "assets/img/sign.jpg";
 
 const loginStyle = {
+  card: {
+    width: "50%",
+  },
   section: {
     minHeight: "110vh",
     maxHeight: "1600px",
@@ -18,7 +21,7 @@ const loginStyle = {
   },
   container,
   form: {
-    margin: "0"
+    margin: "0",
   },
   cardHeader: {
     width: "auto",

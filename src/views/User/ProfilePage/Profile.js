@@ -27,18 +27,20 @@ const Profile = ({ className, ...rest }) => {
   const methods = useForm();
   const { handleSubmit, register } = methods;
   const user = useSelector((state) => state.UserReducers);
+  console.log(user);
   const dispatch = useDispatch();
   const onSubmit = async (data) => {
     const formData = new FormData();
-    formData.append("avataUrl", data.avatar[0]);
+    formData.append("file", data.avatar[0]);
     dispatch(EditAvatar(formData));
   };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Card className={clsx(classes.root, className)} {...rest}>
         <CardContent>
           <Box alignItems="center" display="flex" flexDirection="column">
-            <Avatar className={classes.avatar} src={user.avataUrl} />
+            <Avatar className={classes.avatar} src={user.imageUrl} />
           </Box>
         </CardContent>
         <Divider />

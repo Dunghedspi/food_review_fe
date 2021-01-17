@@ -1,3 +1,5 @@
+/* eslint-disable valid-typeof */
+/* eslint-disable react/prop-types */
 import React from "react";
 // react component for creating beautiful carousel
 import Carousel from "react-slick";
@@ -9,15 +11,12 @@ import GridContainer from "components/Grid/GridContainer.js";
 import GridItem from "components/Grid/GridItem.js";
 import Card from "components/Card/Card.js";
 
-import image1 from "assets/img/bg.jpg";
-import image2 from "assets/img/bg2.jpg";
-import image3 from "assets/img/bg3.jpg";
-
 import styles from "assets/jss/material-kit-react/views/componentsSections/carouselStyle.js";
 
 const useStyles = makeStyles(styles);
 
-export default function SectionCarousel() {
+export default function SectionCarousel(props) {
+  const { images } = props;
   const classes = useStyles();
   const settings = {
     dots: false,
@@ -34,19 +33,19 @@ export default function SectionCarousel() {
           <GridItem xs={12} sm={12} md={12} className={classes.marginAuto}>
             <Card carousel>
               <Carousel {...settings}>
-                <div>
-                  <img src={image1} alt="First slide" className="slick-image" />
-                </div>
-                <div>
-                  <img
-                    src={image2}
-                    alt="Second slide"
-                    className="slick-image"
-                  />
-                </div>
-                <div>
-                  <img src={image3} alt="Third slide" className="slick-image" />
-                </div>
+                {Array.isArray(images)
+                  ? images.map((image, index) => {
+                      return (
+                        <div key={index}>
+                          <img
+                            src={image}
+                            alt="First slide"
+                            className={classes.img}
+                          />
+                        </div>
+                      );
+                    })
+                  : ""}
               </Carousel>
             </Card>
           </GridItem>

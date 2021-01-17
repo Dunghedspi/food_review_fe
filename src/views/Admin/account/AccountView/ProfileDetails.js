@@ -1,60 +1,66 @@
-import React, { useState } from "react";
-import clsx from "clsx";
-import PropTypes from "prop-types";
 import {
   Box,
   Button,
   Card,
   CardContent,
   CardHeader,
+  Checkbox,
   Divider,
+  FormControlLabel,
   Grid,
-  TextField,
   makeStyles,
+  TextField,
 } from "@material-ui/core";
-
-const states = [
-  {
-    value: "alabama",
-    label: "Alabama",
-  },
-  {
-    value: "new-york",
-    label: "New York",
-  },
-  {
-    value: "san-francisco",
-    label: "San Francisco",
-  },
-];
+import clsx from "clsx";
+import PropTypes from "prop-types";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { useSelector, useDispatch } from "react-redux";
+import FormInput from "components/input";
+import * as yup from "yup";
+import { EditInfo } from "actions/UserAction";
+// import { UserApi } from "apis/UserApi";
 
 const useStyles = makeStyles(() => ({
   root: {},
 }));
 
+const schemaValid2 = yup.object().shape({
+  fullName: yup.string().required(),
+  userName: yup.string().required(),
+  password: yup
+    .string()
+    .matches(/^(?=.*[a-zA-Z1-9]).{8,}$/, "Password more than 8 characters"),
+  newPassword: yup
+    .string()
+    .matches(/^(?=.*[a-zA-Z1-9]).{8,}$/, "Password more than 8 characters"),
+  re_password: yup
+    .string()
+    .oneOf([yup.ref("newPassword"), null], "Passwords must match"),
+});
 const ProfileDetails = ({ className, ...rest }) => {
   const classes = useStyles();
-  const [values, setValues] = useState({
-    firstName: "Katarina",
-    lastName: "Smith",
-    email: "demo@devias.io",
-    phone: "",
-    state: "Alabama",
-    country: "USA",
+  const user = useSelector((state) => state.UserReducers);
+  const [show, setShow] = React.useState(false);
+
+  const methods = useForm({
+    validationSchema: schemaValid2,
+    mode: "onBlur",
   });
-
-  const handleChange = (event) => {
-    setValues({
-      ...values,
-      [event.target.name]: event.target.value,
-    });
+  const dispatch = useDispatch();
+  const { handleSubmit, register, control, errors } = methods;
+  const onSubmit = (data) => {
+    dispatch(EditInfo(data));
   };
-
+  const handleChange = () => {
+    setShow(!show);
+  };
   return (
     <form
       autoComplete="off"
       noValidate
       className={clsx(classes.root, className)}
+      onSubmit={handleSubmit(onSubmit)}
       {...rest}
     >
       <Card>
@@ -62,86 +68,101 @@ const ProfileDetails = ({ className, ...rest }) => {
         <Divider />
         <CardContent>
           <Grid container spacing={3}>
-            <Grid item md={6} xs={12}>
+            <Grid item md={12} xs={12}>
               <TextField
                 fullWidth
-                helperText="Please specify the first name"
-                label="First name"
-                name="firstName"
-                onChange={handleChange}
-                required
-                value={values.firstName}
-                variant="outlined"
-              />
-            </Grid>
-            <Grid item md={6} xs={12}>
-              <TextField
-                fullWidth
-                label="Last name"
-                name="lastName"
-                onChange={handleChange}
-                required
-                value={values.lastName}
-                variant="outlined"
-              />
-            </Grid>
-            <Grid item md={6} xs={12}>
-              <TextField
-                fullWidth
-                label="Email Address"
+                label="Email"
                 name="email"
-                onChange={handleChange}
                 required
-                value={values.email}
+                value={user.email}
                 variant="outlined"
+                disabled
+                inputRef={register}
               />
             </Grid>
-            <Grid item md={6} xs={12}>
-              <TextField
+            <Grid item md={12} xs={12}>
+              <FormInput
                 fullWidth
-                label="Phone Number"
-                name="phone"
-                onChange={handleChange}
-                type="number"
-                value={values.phone}
+                label="Full Name"
+                name="fullName"
+                required
                 variant="outlined"
+                inputRef={register}
+                defaultValue={user.fullName}
+                errorobj={errors}
+                control={control}
               />
             </Grid>
-            <Grid item md={6} xs={12}>
-              <TextField
+            <Grid item md={12} xs={12}>
+              <FormInput
                 fullWidth
-                label="Country"
-                name="country"
-                onChange={handleChange}
+                label="UserName"
+                name="userName"
                 required
-                value={values.country}
                 variant="outlined"
+                inputRef={register}
+                defaultValue={user.userName}
+                errorobj={errors}
+                control={control}
               />
             </Grid>
-            <Grid item md={6} xs={12}>
-              <TextField
-                fullWidth
-                label="Select State"
-                name="state"
+            <Grid item md={12} xs={12}>
+              <FormControlLabel
+                control={<Checkbox name="checkbox" />}
+                label="Thay đổi mật khẩu"
                 onChange={handleChange}
-                required
-                select
-                SelectProps={{ native: true }}
-                value={values.state}
-                variant="outlined"
-              >
-                {states.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </TextField>
+              />
             </Grid>
+            {show ? (
+              <>
+                <Grid item md={12} xs={12}>
+                  <FormInput
+                    fullWidth
+                    label="Current Password"
+                    name="password"
+                    required
+                    variant="outlined"
+                    inputRef={register}
+                    errorobj={errors}
+                    control={control}
+                    type="password"
+                  />
+                </Grid>
+                <Grid item md={12} xs={12}>
+                  <FormInput
+                    fullWidth
+                    label="New Password"
+                    name="newPassword"
+                    required
+                    variant="outlined"
+                    inputRef={register}
+                    errorobj={errors}
+                    control={control}
+                    type="password"
+                  />
+                </Grid>
+                <Grid item md={12} xs={12}>
+                  <FormInput
+                    fullWidth
+                    label="Confirme Password"
+                    name="re_password"
+                    required
+                    variant="outlined"
+                    inputRef={register}
+                    errorobj={errors}
+                    control={control}
+                    type="password"
+                  />
+                </Grid>
+              </>
+            ) : (
+              ""
+            )}
           </Grid>
         </CardContent>
         <Divider />
         <Box display="flex" justifyContent="flex-end" p={2}>
-          <Button color="primary" variant="contained">
+          <Button color="primary" variant="contained" type="submit">
             Save details
           </Button>
         </Box>

@@ -1,8 +1,4 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
-import clsx from "clsx";
-import moment from "moment";
-import { useForm } from "react-hook-form";
+/* eslint-disable react/prop-types */
 import {
   Avatar,
   Box,
@@ -11,19 +7,13 @@ import {
   CardActions,
   CardContent,
   Divider,
-  Typography,
   makeStyles,
 } from "@material-ui/core";
-import avatar from "assets/img/landing.jpg";
-
-const user = {
-  avatar: "/static/images/avatars/avatar_6.png",
-  city: "Los Angeles",
-  country: "USA",
-  jobTitle: "Senior Developer",
-  name: "Katarina Smith",
-  timezone: "GTM-7",
-};
+import PropTypes from "prop-types";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
+import { EditAvatar } from "actions/UserAction";
 
 const useStyles = makeStyles(() => ({
   root: {},
@@ -34,49 +24,26 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const onSubmit = (data) => {
-  console.log(data);
-};
-const onError = (error) => {
-  console.error(error);
-};
-
-const Profile = ({ className, ...rest }) => {
+const Profile = (props) => {
   const classes = useStyles();
+  const { user } = props;
   const { handleSubmit, register } = useForm();
-  const [avatarThumbnail, setAvatarThumbnail] = useState(avatar);
-  const handelChangeImage = (e) => {
-    const readFile = new FileReader();
-    readFile.onload = () => {
-      if (readFile.readyState === 2) {
-        setAvatarThumbnail(readFile.result);
-      }
-    };
-    readFile.readAsDataURL(e.target.files[0]);
+  const dispatch = useDispatch();
+  const onSubmit = async (data) => {
+    const formData = new FormData();
+    formData.append("file", data.thumbnail[0]);
+    dispatch(EditAvatar(formData));
   };
   return (
-    <form onSubmit={handleSubmit(onSubmit, onError)}>
-      <Card className={clsx(classes.root, className)} {...rest}>
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Card className={classes.root}>
         <CardContent>
           <Box alignItems="center" display="flex" flexDirection="column">
             <Avatar
               className={classes.avatar}
               variant="square"
-              src={avatarThumbnail}
+              src={user.imageUrl}
             />
-            <Typography color="textPrimary" gutterBottom variant="h5">
-              {user.name}
-            </Typography>
-            <Typography color="textSecondary" variant="body1">
-              {`${user.city} ${user.country}`}
-            </Typography>
-            <Typography
-              className={classes.dateText}
-              color="textSecondary"
-              variant="body1"
-            >
-              {`${moment().format("hh:mm A")} ${user.timezone}`}
-            </Typography>
           </Box>
         </CardContent>
         <Divider />
@@ -86,7 +53,7 @@ const Profile = ({ className, ...rest }) => {
             hidden={true}
             id="thumbnail"
             name="thumbnail"
-            onChange={handelChangeImage}
+            onChange={handleSubmit(onSubmit)}
             ref={register}
           />
           <Button color="primary" fullWidth variant="text">

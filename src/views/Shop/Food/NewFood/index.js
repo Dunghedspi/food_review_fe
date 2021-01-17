@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
+import * as toast from "utils/toastify";
 import {
   Box,
   Button,
@@ -19,6 +20,10 @@ import GridItem from "components/Grid/GridItem";
 import food from "assets/img/faces/food.jpg";
 import AddAPhotoOutlinedIcon from "@material-ui/icons/AddAPhotoOutlined";
 import { useForm } from "react-hook-form";
+import axios from "Plugins/axios/axiosSendFile";
+import { AddFood } from "actions/FoodAction";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 const useStyles = makeStyles(() => ({
   root: {},
   avatar: {
@@ -39,43 +44,66 @@ const useStyles = makeStyles(() => ({
       backgroundColor: "#f2f9f9",
     },
   },
+  image: {
+    minHeight: "100px",
+  },
 }));
-
-const onSubmit = (data) => {
-  console.log(data);
-};
-const onError = (error) => {
-  console.error(error);
-};
 
 const NewFood = ({ className, ...rest }) => {
   const classes = useStyles();
   const [foodThumbnail, setFoodThumbnail] = useState(food);
-  const [foodImages, setFoodImages] = useState("");
   const { handleSubmit, register } = useForm();
-
-  const RenderImages = async () => {
-    // let list = [];
-    // for (const index in foodImages) {
-    //const url = await getUrl(foodImages);
-    //console.log(url);
-    return (
-      <GridItem xs={2}>
-        <Avatar variant="square" className={classes.avatar} src={""} />
-      </GridItem>
-    );
-    // }
+  const [images, setImages] = useState([]);
+  const [foodImage, setFoodImage] = useState([]);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const onSubmit = async (data) => {
+    const formData = new FormData();
+    formData.append("thumbnail", data.thumbnail[0]);
+    for (let i = 0; i < foodImage.length; i++) {
+      formData.append("foodImages", foodImage[i]);
+    }
+    for (let key in data) {
+      if (key !== "thumbnail") formData.append(key, data[key]);
+    }
+    const response = await axios("/api/food/createNewFood", formData);
+    if (response && response.status === 201) {
+      toast.toastifySuccess("Thêm món ăn thành công");
+      dispatch(AddFood(response.data));
+      navigate(`/shop/foods/details?id=${response.data.id}`);
+    }
+  };
+  const onError = (error) => {
+    console.error(error);
   };
 
-  //   const getUrl = (file) => {
-  //     const readFile = new FileReader();
-  //     readFile.onload = () => {
-  //       if (readFile.readyState === 2) {
-  //         return readFile.result;
-  //       }
-  //     };
-  //     readFile.readAsDataURL(file[0]);
-  //   };
+  const deleteImage = (index) => {
+    images.splice(index, 1);
+    setImages([...images]);
+    console.log(images);
+  };
+  const RenderImages = () => {
+    return images.map((image, index) => {
+      return (
+        <GridItem xs={2} key={index}>
+          <div className={classes.image}>
+            <Avatar variant="square" className={classes.avatar} src={image} />
+          </div>
+          <Button onClick={() => deleteImage(index)}>Xóa ảnh</Button>
+        </GridItem>
+      );
+    });
+  };
+  const handleSelectFile = (e) => {
+    setFoodImage([...foodImage, e.target.files[0]]);
+    const readFile = new FileReader();
+    readFile.onload = () => {
+      if (readFile.readyState === 2) {
+        setImages([...images, readFile.result]);
+      }
+    };
+    readFile.readAsDataURL(e.target.files[0]);
+  };
 
   const handelChangeImage = (e) => {
     const readFile = new FileReader();
@@ -139,7 +167,7 @@ const NewFood = ({ className, ...rest }) => {
                     fullWidth
                     helperText="Please specify the food name"
                     label="Food Name"
-                    name="title"
+                    name="name"
                     required
                     variant="outlined"
                     inputRef={register}
@@ -160,7 +188,7 @@ const NewFood = ({ className, ...rest }) => {
                   <TextField
                     fullWidth
                     label="Short Description"
-                    name="shortdescription"
+                    name="shortDescription"
                     required
                     variant="outlined"
                     inputRef={register}
@@ -178,15 +206,13 @@ const NewFood = ({ className, ...rest }) => {
                 </Grid>
                 <Grid item md={12} xs={12}>
                   <GridContainer>
-                    {foodImages ? RenderImages() : ""}
+                    {RenderImages()}
                     <GridItem xs={2}>
                       <input
                         type="file"
-                        name="file"
                         hidden={true}
                         id="file"
-                        ref={register}
-                        onChange={(e) => setFoodImages(e.target.files)}
+                        onChange={(e) => handleSelectFile(e)}
                       />
                       <label htmlFor="file">
                         <div role="button" className={classes.img}>

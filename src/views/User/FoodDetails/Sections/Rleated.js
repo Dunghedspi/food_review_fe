@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable no-unused-vars */
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 // nodejs library that concatenates classes
@@ -8,10 +10,11 @@ import React from "react";
 import Rating from "@material-ui/lab/Rating";
 import Card from "components/Card/Card";
 import CardBody from "components/Card/CardBody";
+import { Link } from "react-router-dom";
 // Sections for this page
 
 const useStyles = makeStyles();
-const renderRelatedFood = (foods) => {
+const renderRelatedFood = (foods, foodId) => {
   const classes = makeStyles(() => ({
     img: {
       width: "100%",
@@ -32,47 +35,52 @@ const renderRelatedFood = (foods) => {
     },
   }))();
   return foods.map((item, index) => {
-    return (
-      <GridItem xs={12} sm={12} md={12} key={index} className={classes.item}>
-        <Card>
-          <CardBody>
-            <GridItem xs={12} sm={12} md={12}>
-              <GridContainer>
-                <GridItem xs={5} md={5} className={classes.imgBox}>
-                  <img alt="food" src={food} className={classes.img} />
-                </GridItem>
-                <GridItem xs={7} md={7}>
-                  <GridContainer>
-                    <GridItem xs={12} md={12}>
-                      <h4>Bánh mì</h4>
-                    </GridItem>
-                    <GridItem xs={12} md={12}>
-                      <span>shop: Van Dung</span>
-                    </GridItem>
-                    <GridItem xs={12} md={12}>
-                      <Rating
-                        name="size-small"
-                        defaultValue={2}
-                        size="small"
-                        precision={0.1}
-                        readOnly
+    if (item.id !== foodId)
+      return (
+        <GridItem xs={12} sm={12} md={12} key={index} className={classes.item}>
+          <Card>
+            <CardBody>
+              <GridItem xs={12} sm={12} md={12}>
+                <GridContainer>
+                  <GridItem xs={5} md={5} className={classes.imgBox}>
+                    <Link to={`/food/details?id=${item.id}`}>
+                      <img
+                        alt="food"
+                        src={item.thumbnail}
+                        className={classes.img}
                       />
-                    </GridItem>
-                  </GridContainer>
-                </GridItem>
-              </GridContainer>
-            </GridItem>
-          </CardBody>
-        </Card>
-      </GridItem>
-    );
+                    </Link>
+                  </GridItem>
+                  <GridItem xs={7} md={7}>
+                    <GridContainer>
+                      <GridItem xs={12} md={12}>
+                        <h4>{item.name}</h4>
+                      </GridItem>
+                      <GridItem xs={12} md={12}>
+                        <Rating
+                          name="size-small"
+                          defaultValue={item.rating}
+                          size="small"
+                          precision={0.1}
+                          readOnly
+                        />
+                      </GridItem>
+                    </GridContainer>
+                  </GridItem>
+                </GridContainer>
+              </GridItem>
+            </CardBody>
+          </Card>
+        </GridItem>
+      );
   });
 };
-export default function LandingPage() {
+export default function LandingPage(props) {
+  const { foods, foodId } = props;
   const classes = useStyles();
   return (
     <div className={classes.container}>
-      <GridContainer>{renderRelatedFood([1, 2, 3, 4, 5, 6])}</GridContainer>
+      <GridContainer>{renderRelatedFood(foods, foodId)}</GridContainer>
     </div>
   );
 }
