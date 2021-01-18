@@ -11,13 +11,15 @@ import Page from "components/page";
 import React from "react";
 import IconButton from "@material-ui/core/IconButton";
 import { FoodApi } from "apis/FoodApi";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { handleComment, checkLike } from "utils/comment";
 import { useForm } from "react-hook-form";
 import SubdirectoryArrowRightIcon from "@material-ui/icons/SubdirectoryArrowRight";
+import { useNavigate } from "react-router-dom";
 import {
   Avatar,
   Button,
+  CardActions,
   Divider,
   Popper,
   TextField,
@@ -32,6 +34,8 @@ import { useLocation } from "react-router-dom";
 import { FacebookShareButton, FacebookIcon } from "react-share";
 import { convertDate } from "utils/date";
 import io from "socket.io-client";
+import CardFooter from "components/Card/CardFooter";
+import { AddFoodEdit } from "actions/FoodAction";
 // import HelmetMetaData from "views/User/Components/ShareFacebook";
 let socket;
 
@@ -356,7 +360,12 @@ export default function LandingPage() {
   const [typingVote, setTypingVote] = React.useState(false);
   const params = useQuery();
   const methods = useForm();
-
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const handleClickEdit = async () => {
+    await dispatch(AddFoodEdit(foodDetails));
+    navigate("/shop/foods/edit-food");
+  };
   React.useEffect(() => {
     const getFood = async () => {
       const food = await FoodApi.GetDetailsFood(params.get("id"));
@@ -510,6 +519,11 @@ export default function LandingPage() {
                 </GridItem>
               </GridContainer>
             </CardBody>
+            <CardFooter>
+              <CardActions>
+                <Button variant="contained" onClick={handleClickEdit}>Chỉnh Sửa</Button>
+              </CardActions>
+            </CardFooter>
           </Card>
         </GridItem>
       </GridContainer>
